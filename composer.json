@@ -1,0 +1,29 @@
+{
+  "name": "recranet/craft-recranet-console-craft-cms-version",
+  "type": "craft-plugin",
+  "require": {
+    "php": ">=7.4",
+    "craftcms/cms": "^4.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "recranet\\craftrecranetconsolecraftcmsversion\\": "src/"
+    }
+  },
+  "extra": {
+    "handle": "_recranet-console-craft-cms-version",
+    "name": "Recranet Console CraftCMS Version",
+    "developer": "Recranet",
+    "documentationUrl": ""
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
+  }
+}
