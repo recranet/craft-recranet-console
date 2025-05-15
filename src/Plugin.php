@@ -46,6 +46,7 @@ class Plugin extends BasePlugin
             $response = $client->post($webhookUrl, [
                 'headers' => self::headers(),
                 'json' => [
+                    'id' => $user->id,
                     'username' => $user->username,
                     'email' => $user->email,
                 ]
@@ -84,11 +85,6 @@ class Plugin extends BasePlugin
             if (($ip = $request->getUserIP(FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) !== null) {
                 $headers['X-Craft-User-Ip'] = $ip;
             }
-        }
-
-        // Set user email
-        if (($user = Craft::$app->getUser()->getIdentity()) !== null) {
-            $headers['X-Craft-User-Email'] = $user->email;
         }
 
         // Set license
