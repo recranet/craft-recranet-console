@@ -87,11 +87,6 @@ class Plugin extends BasePlugin
             }
         }
 
-        // Set license
-        if ($licenseKey = App::licenseKey()) {
-            $headers['X-Craft-License'] = $licenseKey;
-        }
-
         return $headers;
     }
 
