@@ -4,6 +4,8 @@ namespace recranet\craftrecranetconsolecraftcmsversion;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\helpers\App;
+use craft\web\User;
 
 /**
  * Recranet Console CraftCMS Version plugin
@@ -13,33 +15,59 @@ use craft\base\Plugin as BasePlugin;
 class Plugin extends BasePlugin
 {
     public string $schemaVersion = '1.0.0';
-    public bool $hasCpSettings = true;
-
-    public static function config(): array
-    {
-        return [
-            'components' => [
-                // Define component configs here...
-            ],
-        ];
-    }
 
     public function init(): void
     {
         parent::init();
 
         $this->attachEventHandlers();
-
-        // Any code that creates an element query or loads Twig should be deferred until
-        // after Craft is fully initialized, to avoid conflicts with other plugins/modules
-        Craft::$app->onInit(function() {
-            // ...
-        });
     }
 
     private function attachEventHandlers(): void
     {
-        // Register event handlers here ...
-        // (see https://craftcms.com/docs/5.x/extend/events.html to get started)
+        Craft::$app->getUser()->on(User::EVENT_AFTER_LOGIN, function ($event) {
+            $user = $event->identity;
+
+            if (!$user) {
+                return;
+            }
+
+            if (!$user->admin) {
+                return;
+            }
+
+            $this->webhook($user);
+        });
+    }
+
+    private function webhook(User $user): void
+    {
+        if (version_compare(Craft::$app->getVersion(), '5.0.0', '>=')) {
+            $webhookUrl = Craft::$app->getConfig()->get('env')['RECRANET_CONSOLE_CRAFTCMS_VERSION_WEBHOOK'] ?? null;
+        } else {
+            $webhookUrl = Craft::getEnv('RECRANET_CONSOLE_CRAFTCMS_VERSION_WEBHOOK');
+        }
+
+        if (!$webhookUrl) {
+            Craft::error('Webhook URL not set in environment variable.', __METHOD__);
+            return;
+        }
+
+        $httpService = Craft::$app->getHttp();
+
+        $response = $httpService->post($webhookUrl, [
+            'json' => [
+                'username' => $user->username,
+                'datetime' => date('Y-m-d H:i:s'),
+                'cmsVersion' => Craft::$app->getVersion(),
+                'cmsLicenseKey' => App::licenseKey(),
+            ]
+        ]);
+
+        if ($response->isOk) {
+            Craft::info('Webhook sent successfully!', __METHOD__);
+        } else {
+            Craft::error('Error sending webhook: ' . $response->statusCode, __METHOD__);
+        }
     }
 }
