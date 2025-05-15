@@ -5,7 +5,7 @@ namespace recranet\craftrecranetconsolecraftcmsversion;
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\helpers\App;
-use craft\web\User;
+use yii\web\User;
 
 /**
  * Recranet Console CraftCMS Version plugin
@@ -32,10 +32,6 @@ class Plugin extends BasePlugin
                 return;
             }
 
-            if (!$user->admin) {
-                return;
-            }
-
             $webhookUrl = App::env('RECRANET_CONSOLE_CRAFTCMS_VERSION_WEBHOOK');
 
             if (!$webhookUrl) {
@@ -48,11 +44,10 @@ class Plugin extends BasePlugin
             ]);
 
             $response = $client->post($webhookUrl, [
+                'headers' => self::headers(),
                 'json' => [
                     'username' => $user->username,
-                    'datetime' => date('Y-m-d H:i:s'),
-                    'cmsVersion' => Craft::$app->getVersion(),
-                    'cmsLicenseKey' => App::licenseKey(),
+                    'email' => $user->email,
                 ]
             ]);
 
@@ -62,5 +57,42 @@ class Plugin extends BasePlugin
                 Craft::error('Error sending webhook: ' . $response->getStatusCode(), __METHOD__);
             }
         });
+    }
+
+    public static function headers(): array
+    {
+        $headers = [
+            'Accept' => 'application/json',
+            'X-Craft-Env' => Craft::$app->env,
+            'X-Craft-System' => sprintf('craft:%s;%s', Craft::$app->getVersion(), Craft::$app->edition->handle()),
+        ];
+
+        $platform = [];
+        foreach (self::platformVersions() as $name => $version) {
+            $platform[] = "$name:$version";
+        }
+        $headers['X-Craft-Platform'] = implode(',', $platform);
+
+        if (($user = Craft::$app->getUser()->getIdentity()) !== null) {
+            $headers['X-Craft-User-Email'] = $user->email;
+        }
+
+        if ($licenseKey = App::licenseKey()) {
+            $headers['X-Craft-License'] = $licenseKey;
+        }
+
+        return $headers;
+    }
+
+    public static function platformVersions(): array
+    {
+        $versions = [
+            'php' => App::phpVersion(),
+        ];
+
+        $db = Craft::$app->getDb();
+        $versions[$db->getDriverName()] = App::normalizeVersion($db->getSchema()->getServerVersion());
+
+        return $versions;
     }
 }
