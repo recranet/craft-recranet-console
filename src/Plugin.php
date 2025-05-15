@@ -1,6 +1,6 @@
 <?php
 
-namespace recranet\craftrecranetconsolecraftcmsversion;
+namespace recranet\craftrecranetconsole;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
@@ -8,7 +8,7 @@ use craft\helpers\App;
 use yii\web\User;
 
 /**
- * Recranet Console CraftCMS Version plugin
+ * Recranet Console webhook
  *
  * @method static Plugin getInstance()
  */

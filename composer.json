@@ -1,5 +1,5 @@
 {
-  "name": "recranet/craft-recranet-console-craft-cms-version",
+  "name": "recranet/craft-recranet-console",
   "type": "craft-plugin",
   "require": {
     "php": ">=7.4",
@@ -7,12 +7,12 @@
   },
   "autoload": {
     "psr-4": {
-      "recranet\\craftrecranetconsolecraftcmsversion\\": "src/"
+      "recranet\\craftrecranetconsole\\": "src/"
     }
   },
   "extra": {
-    "handle": "_recranet-console-craft-cms-version",
-    "name": "Recranet Console CraftCMS Version",
+    "handle": "_craft-recranet-console",
+    "name": "Recranet Console",
     "developer": "Recranet",
     "documentationUrl": ""
   },

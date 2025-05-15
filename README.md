@@ -3,8 +3,8 @@
 ## Installation
 
 ```
-composer require recranet/craft-recranet-console-craft-cms-version
-php craft plugin/install _recranet-console-craft-cms-version
+composer require recranet/craft-recranet-console
+php craft plugin/install _craft-recranet-console
 ```
 
 ## Requirements
