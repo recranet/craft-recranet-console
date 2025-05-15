@@ -61,22 +61,37 @@ class Plugin extends BasePlugin
 
     public static function headers(): array
     {
+        // Set env and system
         $headers = [
             'Accept' => 'application/json',
             'X-Craft-Env' => Craft::$app->env,
             'X-Craft-System' => sprintf('craft:%s;%s', Craft::$app->getVersion(), Craft::$app->edition->handle()),
         ];
 
+        // Set platform
         $platform = [];
         foreach (self::platformVersions() as $name => $version) {
             $platform[] = "$name:$version";
         }
         $headers['X-Craft-Platform'] = implode(',', $platform);
 
+        // Set host and user ip
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            if (($host = $request->getHostInfo()) !== null) {
+                $headers['X-Craft-Host'] = $host;
+            }
+            if (($ip = $request->getUserIP(FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) !== null) {
+                $headers['X-Craft-User-Ip'] = $ip;
+            }
+        }
+
+        // Set user email
         if (($user = Craft::$app->getUser()->getIdentity()) !== null) {
             $headers['X-Craft-User-Email'] = $user->email;
         }
 
+        // Set license
         if ($licenseKey = App::licenseKey()) {
             $headers['X-Craft-License'] = $licenseKey;
         }
