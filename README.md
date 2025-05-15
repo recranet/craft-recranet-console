@@ -1,4 +1,4 @@
-# Recranet Console CraftCMS Version
+# Recranet Console plugin
 
 ## Installation
 
