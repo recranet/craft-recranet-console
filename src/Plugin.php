@@ -32,7 +32,7 @@ class Plugin extends BasePlugin
                 return;
             }
 
-            $webhookUrl = App::env('RECRANET_CONSOLE_CRAFTCMS_VERSION_WEBHOOK');
+            $webhookUrl = App::env('RECRANET_CONSOLE_WEBHOOK');
 
             if (!$webhookUrl) {
                 Craft::error('Webhook URL not set in environment variable.', __METHOD__);
