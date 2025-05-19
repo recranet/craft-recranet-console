@@ -5,6 +5,7 @@ namespace recranet\craftrecranetconsole;
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\helpers\App;
+use Psr\Http\Client\ClientExceptionInterface;
 use yii\web\User;
 
 /**
@@ -43,19 +44,21 @@ class Plugin extends BasePlugin
                 'connect_timeout' => 5,
             ]);
 
-            $response = $client->post($webhookUrl, [
-                'headers' => self::headers(),
-                'json' => [
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                ]
-            ]);
+            try {
+                $response = $client->post($webhookUrl, [
+                    'headers' => self::headers(),
+                    'json' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                    ]
+                ]);
 
-            if ($response->getStatusCode() === 200) {
-                Craft::info('Webhook sent successfully!', __METHOD__);
-            } else {
-                Craft::error('Error sending webhook: ' . $response->getStatusCode(), __METHOD__);
+                if ($response->getStatusCode() === 200) {
+                    Craft::info('Webhook sent successfully!', __METHOD__);
+                }
+            } catch (ClientExceptionInterface $e) {
+                Craft::error('Error sending webhook: ' . $e->getMessage(), __METHOD__);
             }
         });
     }
