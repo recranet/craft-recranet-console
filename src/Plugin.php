@@ -70,14 +70,9 @@ class Plugin extends BasePlugin
             'Accept' => 'application/json',
             'X-Craft-Env' => Craft::$app->env,
             'X-Craft-System' => sprintf('craft:%s;%s', Craft::$app->getVersion(), Craft::$app->edition->handle()),
+            'X-Craft-Platform' => 'php:' . App::phpVersion(),
+            'X-Craft-Platform-Hostname' => gethostname(),
         ];
-
-        // Set platform
-        $platform = [];
-        foreach (self::platformVersions() as $name => $version) {
-            $platform[] = "$name:$version";
-        }
-        $headers['X-Craft-Platform'] = implode(',', $platform);
 
         // Set host and user ip
         $request = Craft::$app->getRequest();
@@ -91,17 +86,5 @@ class Plugin extends BasePlugin
         }
 
         return $headers;
-    }
-
-    public static function platformVersions(): array
-    {
-        $versions = [
-            'php' => App::phpVersion(),
-        ];
-
-        $db = Craft::$app->getDb();
-        $versions[$db->getDriverName()] = App::normalizeVersion($db->getSchema()->getServerVersion());
-
-        return $versions;
     }
 }
